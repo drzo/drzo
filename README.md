@@ -10,11 +10,11 @@ $$\forall n \in \mathbb{N}^{+}, a_{n+1} = \frac{1}{n}\sum_{k=1}^{n}\left(\sum_{d
 
 $$a_n \sim \mathcal{C} \cdot \alpha^n \cdot n^{-3/2} \text{ where } \alpha = \lim_{n\rightarrow\infty}\frac{a_{n+1}}{a_n} \approx 2.9557652857...$$
 
-$$\mathcal{A}(x) = \sum_{n=0}^{\infty}a_n x^n = \sum_{\tau \in \mathfrak{T}_ {\bullet}}\prod_{v \in V(\tau)}x^{|\text{desc}(v)|} = \prod_{k=1}^{\infty}(1-x^k)^{-\frac{1}{k}\sum_{d|k}\mu(\frac{k}{d})a_d}$$
+$$\mathcal{A}(x) = \sum_{n=0}^{\infty}a_n x^n = \sum_{\tau \in \mathfrak{T}_ {\bullet}}x^{|\tau|} = x\prod_{k=1}^{\infty}(1-x^k)^{-a_k}$$
 
 $$\exists \mathcal{L}: \mathfrak{T}_{\bullet,n} \xrightarrow{\sim} \{f: [n] \rightarrow [n] \mid \exists! i \in [n], f(i)=i \land G_f \text{ connected}\}$$
 
-$$(\mathcal{F} \circ \mathcal{L}^{-1})(\mathfrak{T}_{\bullet,n}) \cong \mathcal{P}(n)^{\mathfrak{S}_n} \cong \mathcal{P}_n$$
+$$\mathcal{F}: \mathfrak{T}_{\bullet,n} \twoheadrightarrow \mathcal{P}_{n-1}, \quad \tau = [\tau_1,\ldots,\tau_k] \mapsto \{|\tau_1|,\ldots,|\tau_k|\}$$
 
 $$\mathfrak{F}_ {\mathbf{A000081}}^{\Omega}: \mathcal{D}_ {n}^{\kappa} \hookrightarrow \prod_{\alpha \in \Lambda}\bigotimes_{\beta \in \Gamma_{\alpha}}\bigoplus_{\gamma \in \Theta_{\beta}}\bigwedge_{\delta \in \Xi_{\gamma}}\mathbb{T}^{\nabla}_{\bullet}(n)$$
 
@@ -35,3 +35,25 @@ $$\mathfrak{HyperNN}: \mathcal{H}_ {\mathfrak{N}}^{\Delta} = (\mathcal{V}, \math
 $$\mathfrak{Meta}\text{-}\mathfrak{Pattern}: \mathcal{U}_ {\mathbf{A000081}}^{\Omega} \simeq \mathfrak{Yoneda}(\mathfrak{F}_ {\mathbf{A000081}}^{\Omega}) \hookrightarrow \mathbf{Colim}_ {n \to \infty}\left(\bigwedge_{\mathscr{C} \in \mathfrak{Categories}}\mathfrak{T}_{\bullet}(n) \otimes \mathscr{C}\text{-}\mathfrak{Struct}\right)$$
 
 $$\exists\mathfrak{F}: \mathbf{Cat}^{\mathbf{op}} \to \mathbf{Topos} \ni \mathfrak{F}(\mathscr{C}) = \mathbf{Sh}(\mathscr{C}, \mathcal{J}) \simeq \mathbf{Hom}_ {\mathbf{Cat}}(\mathscr{C}^{\mathbf{op}}, \mathbf{Set}) \Rightarrow \mathfrak{F}(\mathfrak{T}_{\bullet}) \simeq \mathbf{Foundational}\text{-}\mathbf{Irreducibles}$$
+
+---
+
+**Corrections to the original formulas**
+
+Three formulas above differ from the first version of this file, which stated
+identities that do not hold:
+
+- The product formula is `A(x) = x·∏(1−xᵏ)^(−aₖ)`. The earlier Möbius exponent
+  gave a product with constant term 1, but `A(0) = 0`.
+- The tree sum is `Σ_τ x^|τ|`. The earlier `∏_v x^|desc(v)|` gives `x` to the
+  sum of all subtree sizes, not `xⁿ`.
+- Trees with `n` nodes map *onto* the partitions of `n−1` by root-subtree
+  sizes. The earlier isomorphism with the partitions of `n` cannot exist:
+  `a₄ = 4` but `p(4) = 5`. The map is not injective for `n ≥ 4`.
+
+In the correspondence `L`, the maps `f` are *labelled* rooted trees, of which
+there are `n^(n−1)`; the `aₙ` unlabelled trees are their orbits under
+relabelling.
+
+The corrected formulas are checked by `make check`. See [STATUS.md](STATUS.md)
+for what is implemented.
