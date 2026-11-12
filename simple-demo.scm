@@ -1,4 +1,4 @@
-#!/usr/bin/env guile
+#!/usr/bin/env -S guile -e main -s
 !#
 
 ;;; Simple demo of Ghost in the Guile Shell
@@ -75,5 +75,6 @@
   (format #t "• Topos-theoretic functors~%~%")
   (format #t "Run 'guile -s advanced-structures.scm' for more!~%"))
 
-;; Run the demo
-(simple-demo)
+;; Entry point: guile -e main -s simple-demo.scm
+(define (main . args)
+  (simple-demo))

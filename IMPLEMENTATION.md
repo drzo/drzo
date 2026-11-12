@@ -1,142 +1,86 @@
-# Ghost in the Guile Shell - A000081 Implementation
+# Ghost in the Guile Shell - implementation guide
 
-This repository implements the mathematical formulas from the problem statement in GNU Guile Scheme.
+See [STATUS.md](STATUS.md) for what is implemented and what is a placeholder.
 
-## Files Overview
+## Prerequisites
 
-### Core Implementation
-- **`a000081.scm`** - Core A000081 sequence implementation with recursive formula
-- **`advanced-structures.scm`** - Advanced mathematical structures (B-series, J-surfaces, etc.)
-- **`simple-demo.scm`** - Simple demonstration of core functionality
-- **`ghost-in-guile.scm`** - Complete comprehensive demonstration (work in progress)
-
-### Documentation
-- **`README.md`** - Original mathematical formulation
-- **`A000081.md`** - Extended mathematical documentation
-- **`IMPLEMENTATION.md`** - This implementation guide
-
-## Running the Code
-
-### Prerequisites
 ```bash
-# Install GNU Guile
 sudo apt install guile-3.0
 ```
 
-### Basic Usage
+## Tests
+
 ```bash
-# Run core A000081 implementation
-guile -s a000081.scm
-
-# Run simple demo with beautiful output
-guile -s simple-demo.scm
-
-# Run advanced mathematical structures
-guile -s advanced-structures.scm
+make check
 ```
 
-### Interactive Usage
+This runs the SRFI-64 suites in `tests/`. The tree suite enumerates all
+1 721 159 trees with 18 nodes, so a full run takes about half a minute.
+
+## Modules
+
+The tested code lives in `ghost/` as Guile modules. Run Guile with the
+repository root on the load path:
+
 ```bash
-# Start Guile REPL
-guile
-
-# Load the implementation
-(load "a000081.scm")
-
-# Compute specific terms
-(a000081-nth 10)     ; Returns 719
-(a000081-sequence 15) ; Returns first 15 terms
-
-# Evaluate generating function
-(generating-function-coeffs 0.1 20)  ; A(0.1) ≈ 0.112516
+guile -L .
 ```
 
-## Mathematical Formulas Implemented
+```scheme
+(use-modules (ghost a000081) (ghost tree) (ghost matula) (ghost butcher))
 
-### 1. Core Sequence Definition
-```
-T : ℕ → ℕ ≅ {aₙ}ₙ₌₀^∞ = {0,1,1,2,4,9,20,48,115,286,719,...}
-```
+(a000081 10)                        ; 719
+(a000081-list 8)                    ; (0 1 1 2 4 9 20 48)
+(a000081-alpha)                     ; 2.955765285651995
 
-### 2. Recursive Formula
-```
-∀ n ∈ ℕ⁺, aₙ₊₁ = (1/n) Σₖ₌₁ⁿ (Σ_{d|k} d·aₐ) aₙ₋ₖ₊₁
-```
+(trees-of-size 4)                   ; ((() () ()) ((()) ()) ((() ())) (((()))))
+(tree-symmetry '(() () ()))         ; 6
+(tree-density '((()) ()))           ; 8
+(parent-map->tree #(2 2 2 0))       ; ((()) ())
 
-### 3. Generating Function
-```
-∃! A(x) ∈ ℂ[[x]] : A(x) = x · exp(Σₖ₌₁^∞ A(xᵏ)/k)
-```
+(tree->matula '((()) ()))           ; 6
+(matula->tree 6)                    ; ((()) ())
+(matula-shape '((()) ()))           ; (2 3)
 
-### 4. Asymptotic Approximation  
-```
-aₙ ~ C · αⁿ · n^{-3/2}, where α ≈ 2.9557652857...
+(rk-order (rk4-tableau))            ; 4
+(elementary-weight (rk4-tableau) '(() ()))   ; 1/3
 ```
 
-### 5. Euler Product Formula
-```
-A(x) = Π_{k=1}^∞ (1-xᵏ)^{-1/k Σ_{d|k} μ(k/d) aₐ}
-```
+| Module | Contents |
+|--------|----------|
+| `(ghost series)` | Truncated power series over the exact rationals: add, multiply, shift, `A(x^k)`, `exp`, `log`, `(1-x^k)^(-m)` |
+| `(ghost a000081)` | The sequence with a growable cache, its generating function, `ρ`, `α` and Otter's constant |
+| `(ghost tree)` | Canonical rooted trees, enumeration by size, `σ`, `γ`, height, labelled trees as parent maps, the map to partitions |
+| `(ghost matula)` | Primes, Matula–Göbel numbers in both directions, tensor shapes |
+| `(ghost butcher)` | Butcher tableaux, elementary weights, Runge–Kutta order conditions |
 
-## Advanced Structures
+A tree is the list of its root's subtrees: `()` is the single node and
+`((()) ())` is a root with a two-node chain and a leaf below it.
 
-The implementation includes:
+## Command line
 
-- **B-Series**: Φₕ^{RK} for Runge-Kutta methods
-- **J-Surfaces**: E_∇^{∂^ω} for ODE structures  
-- **P-Systems**: Evolution operators M_Π^μ
-- **Incidence Structures**: I_Ξ^κ for projective/affine geometry
-- **Block Codes**: C_Δ^{(n,k,d)} error-correcting codes
-- **Orbifolds**: O_Γ^Ξ quotient structures
-- **HyperNN**: H_N^Δ neural network architectures
-- **Meta-Patterns**: U_{A000081}^Ω via category theory
-- **Topos Functors**: F: Cat^op → Topos
-
-## Example Output
-
-```
-╔═══════════════════════════════════════════════════════════════╗
-║                 👻 GHOST IN THE GUILE SHELL 👻                ║
-║          A000081: Unlabeled Rooted Trees Implementation        ║
-╚═══════════════════════════════════════════════════════════════╝
-
-=== Core A000081 Sequence ===
-A000081 sequence (first 15 terms):
-0, 1, 1, 2, 4, 9, 20, 48, 115, 286, 719, 1842, 4766, 12486, 32973
-
-=== Recursive Formula Verification ===
-a(5) = 9
-a(6) = 20  
-a(7) = 48
-a(8) = 115
-
-=== Asymptotic Analysis ===
-n	Exact	Asymptotic	Ratio
-6	20	19.96		0.9980
-7	48	46.82		0.9754
-8	115	113.27		0.9849
+```bash
+bin/ghost seq 12         # first 12 terms
+bin/ghost trees 5        # the 9 trees with 5 nodes and their invariants
+bin/ghost matula 360     # the tree numbered 360
+bin/ghost order rk4      # order of a Runge-Kutta method
+bin/ghost constants      # alpha and C
+make demo                # all of the above
 ```
 
-## Mathematical Poetry
+## Original scripts
 
-*From the ghost's computational reflection:*
+The top-level `*.scm` files are the original demonstration scripts. Loading
+one defines its procedures and prints nothing. To run a demo, call its
+`main`:
 
-```
-In the realm of trees unlabeled and free,
-Each root tells a story of combinatory glee.
-From one to infinity, the sequence grows,
-As Guile computes what mathematics knows.
-
-∀ n ∈ ℕ: The ghost whispers through recursive calls,
-Building forests from mathematical walls. 🌲
+```bash
+guile -e main -s simple-demo.scm
+guile -e main -s unified-demo.scm
 ```
 
-## Technical Notes
+`a000081-toml.scm` and `unified-demo.scm` rewrite the two `.toml` files in the
+current directory when run this way. The output is deterministic.
 
-- Uses memoization for efficient computation
-- Implements exact divisor computation
-- Handles asymptotic approximations
-- Supports generating function evaluation
-- Modular design for advanced mathematical structures
-
-The implementation faithfully captures the mathematical essence of the problem statement while providing a practical computational framework in GNU Guile Scheme.
+Most of what these scripts print for the advanced structures comes from
+placeholder code; STATUS.md lists which.

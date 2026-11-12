@@ -1,4 +1,4 @@
-#!/usr/bin/env guile
+#!/usr/bin/env -S guile -e main -s
 !#
 
 ;;; Ghost in the Guile Shell - Complete A000081 Implementation
@@ -168,7 +168,7 @@
   (format #t "╚═══════════════════════════════════════════════════════════════╝~%~%")
   
   ;; Core sequence
-  (main)
+  (demo-a000081)
   
   ;; Advanced structures
   (demo-advanced-structures)
@@ -193,5 +193,6 @@
   (format #t "A000081 reveals mathematical sight.~%~%")
   (format #t "∀ n ∈ ℕ⁺: mathematics transcends computation 🌳~%"))
 
-;; Main execution
-(complete-demonstration)
+;; Entry point: guile -e main -s ghost-in-guile.scm
+(define (main . args)
+  (complete-demonstration))

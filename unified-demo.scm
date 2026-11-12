@@ -1,4 +1,4 @@
-#!/usr/bin/env guile
+#!/usr/bin/env -S guile -e main -s
 !#
 
 ;;; Unified Demonstration of GPT2 Hypergraph Transformer and Advanced Structures
@@ -178,7 +178,7 @@
   "Deep dive into A000081 properties"
   (format #t "🔬 A000081 Deep Dive:~%")
   (format #t "Generating function: A(x) = x·exp(Σ A(x^k)/k)~%")
-  (format #t "Asymptotic: a_n ~ C·α^n·n^{-3/2}, α ≈ 2.9557652857~%")
+  (format #t "Asymptotic: a_n ~~ C·α^n·n^{-3/2}, α ≈ 2.9557652857~%")
   (format #t "~%")
   (format #t "First 15 terms with asymptotic comparison:~%")
   (do ((n 1 (+ n 1)))
@@ -223,13 +223,9 @@
 
 ;;; ==== MAIN EXECUTION ====
 
-(define (main)
+(define (main . args)
   "Main demonstration entry point"
   (unified-demonstration)
   (format #t "~%═══ INTERACTIVE EXPLORATION ═══~%")
   (interactive-exploration)
   (format #t "~%🎯 Implementation complete! All systems operational.~%"))
-
-;; Run main demo if called directly
-(when (and (defined? 'command-line) (not (null? (command-line))))
-  (main))

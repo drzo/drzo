@@ -1,4 +1,4 @@
-#!/usr/bin/env guile
+#!/usr/bin/env -S guile -e main -s
 !#
 
 ;;; GPT2 Transformer as Hypergraph Implementation
@@ -185,7 +185,7 @@
   "Generate weight matrix influenced by tree structure"
   (map (lambda (i)
          (map (lambda (j)
-                (* (random:normal) 
+                (* (gaussian-sample) 
                    (sqrt (/ 2.0 (* in-dim tree-factor)))))
               (iota out-dim)))
        (iota in-dim)))
@@ -255,7 +255,7 @@
 
 (define (random-embedding dim)
   "Generate random embedding vector"
-  (map (lambda (i) (* (random:normal) 0.02)) (iota dim)))
+  (map (lambda (i) (* (gaussian-sample) 0.02)) (iota dim)))
 
 (define (circular-list-extend lst target-length)
   "Extend list circularly to target length"
@@ -276,7 +276,7 @@
 ;;; ==== UTILITIES ====
 
 ;;; Random number generator setup
-(define random:normal
+(define gaussian-sample
   (let ((have-spare #f)
         (spare 0.0))
     (lambda ()
@@ -341,6 +341,6 @@
     
     (format #t "~%GPT2 hypergraph demonstration complete.~%")))
 
-;; Run demo if called directly
-(when (and (defined? 'command-line) (not (null? (command-line))))
+;; Entry point: guile -e main -s gpt2-hypergraph.scm
+(define (main . args)
   (demo-gpt2-hypergraph))

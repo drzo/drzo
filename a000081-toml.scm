@@ -1,4 +1,4 @@
-#!/usr/bin/env guile
+#!/usr/bin/env -S guile -e main -s
 !#
 
 ;;; A000081 TOML Partitioning System
@@ -159,7 +159,6 @@
      (format #f "generator = \"A000081 TOML Partitioner\"~%")
      (format #f "sequence = \"~a\"~%" (a000081-sequence 10))
      (format #f "tree_structure = \"~a\"~%" (config-tree-structure config))
-     (format #f "creation_time = \"~a\"~%" (strftime "%Y-%m-%d %H:%M:%S" (localtime (current-time))))
      "\n")))
 
 (define (generate-sections-toml sections)
@@ -343,6 +342,6 @@
   
   (format #t "~%A000081 TOML partitioning demonstration complete.~%"))
 
-;; Run demo if called directly
-(when (and (defined? 'command-line) (not (null? (command-line))))
+;; Entry point: guile -e main -s a000081-toml.scm
+(define (main . args)
   (demo-a000081-toml))
