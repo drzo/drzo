@@ -1,0 +1,95 @@
+#!/usr/bin/env -S guile -e main -s
+!#
+;;; ghost - command-line entry to the (ghost ...) modules
+
+(add-to-load-path (dirname (dirname (current-filename))))
+
+(use-modules (srfi srfi-1)
+             (ice-9 format)
+             (ghost a000081)
+             (ghost tree)
+             (ghost matula)
+             (ghost butcher))
+
+(define tableaux
+  `(("euler" . ,euler-tableau)
+    ("midpoint" . ,midpoint-tableau)
+    ("heun" . ,heun-tableau)
+    ("kutta3" . ,kutta3-tableau)
+    ("rk4" . ,rk4-tableau)
+    ("three-eighths" . ,three-eighths-tableau)
+    ("implicit-midpoint" . ,implicit-midpoint-tableau)))
+
+(define (usage port)
+  (format port "Usage: ghost COMMAND [ARG]
+  seq N        print a(0) .. a(N-1) of OEIS A000081
+  trees N      list the rooted trees with N nodes: Matula number, sigma,
+               gamma, tensor shape, parenthesis form
+  matula M     print the tree with Matula-Goebel number M
+  order NAME   print the order of a Runge-Kutta method (~{~a~^, ~})
+  constants    print the growth rate alpha and Otter's constant C
+  demo         run all of the above on small inputs
+" (map car tableaux)))
+
+(define (fail message . args)
+  (apply format (current-error-port) message args)
+  (newline (current-error-port))
+  (usage (current-error-port))
+  (exit 2))
+
+(define (parse-count who text minimum)
+  (let ((n (and text (string->number text))))
+    (unless (and n (exact? n) (integer? n) (>= n minimum))
+      (fail "ghost ~a: expected an integer >= ~a, got ~s" who minimum text))
+    n))
+
+(define (print-seq n)
+  (format #t "~{~a~^, ~}~%" (a000081-list n)))
+
+(define (print-trees n)
+  (format #t "~a rooted trees with ~a nodes~%" (a000081 n) n)
+  (format #t "~10@a ~8@a ~8@a  ~16a ~a~%" "matula" "sigma" "gamma" "shape" "tree")
+  (for-each (lambda (t)
+              (format #t "~10@a ~8@a ~8@a  ~16a ~a~%"
+                      (tree->matula t) (tree-symmetry t) (tree-density t)
+                      (matula-shape t) (tree->string t)))
+            (trees-of-size n)))
+
+(define (print-matula m)
+  (let ((t (matula->tree m)))
+    (format #t "~a  nodes ~a  sigma ~a  gamma ~a  shape ~a~%"
+            (tree->string t) (tree-size t) (tree-symmetry t)
+            (tree-density t) (matula-shape t))))
+
+(define (print-order name)
+  (let ((entry (assoc name tableaux)))
+    (unless entry
+      (fail "ghost order: unknown method ~s" name))
+    (format #t "~a: order ~a~%" name (rk-order ((cdr entry))))))
+
+(define (print-constants)
+  (format #t "alpha = ~a~%C     = ~a~%" (a000081-alpha) (a000081-otter-constant)))
+
+(define (demo)
+  (print-seq 20)
+  (newline)
+  (print-constants)
+  (newline)
+  (print-trees 5)
+  (newline)
+  (for-each (lambda (entry) (print-order (car entry))) tableaux))
+
+(define (main args)
+  (let ((command (and (pair? (cdr args)) (cadr args)))
+        (argument (and (pair? (cdr args)) (pair? (cddr args)) (caddr args))))
+    (cond ((not command) (usage (current-output-port)))
+          ((member command '("help" "-h" "--help")) (usage (current-output-port)))
+          ((string=? command "seq") (print-seq (parse-count "seq" argument 0)))
+          ((string=? command "trees") (print-trees (parse-count "trees" argument 1)))
+          ((string=? command "matula") (print-matula (parse-count "matula" argument 1)))
+          ((string=? command "order")
+           (unless argument (fail "ghost order: missing method name"))
+           (print-order argument))
+          ((string=? command "constants") (print-constants))
+          ((string=? command "demo") (demo))
+          (else (fail "ghost: unknown command ~s" command)))))

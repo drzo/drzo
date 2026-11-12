@@ -1,4 +1,4 @@
-#!/usr/bin/env guile
+#!/usr/bin/env -S guile -e main -s
 !#
 
 ;;; A000081 - Number of unlabeled rooted trees with n nodes
@@ -93,7 +93,7 @@
                   (iota terms) seq))))
 
 ;;; Main demonstration
-(define (main)
+(define (demo-a000081)
   "Main demonstration of A000081 computations"
   (format #t "=== Ghost in the Guile Shell ===~%")
   (format #t "A000081: Number of unlabeled rooted trees~%~%")
@@ -125,6 +125,6 @@
   (format #t "Generating function A(0.2) ≈ ~,6f~%" 
           (generating-function-coeffs 0.2 20)))
 
-;; If this file is run directly
-(when (and (defined? 'command-line) (not (null? (command-line))))
-  (main))
+;; Entry point: guile -e main -s a000081.scm
+(define (main . args)
+  (demo-a000081))

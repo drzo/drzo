@@ -1,4 +1,4 @@
-#!/usr/bin/env guile
+#!/usr/bin/env -S guile -e main -s
 !#
 
 ;;; Advanced Mathematical Structures for A000081
@@ -135,7 +135,7 @@
 ;;; Orbifolds: O_Γ^Ξ = (X/Γ, {m_x}_{x∈Σ})
 (define (orbifolds base-space group-action singularities max-degree)
   "Compute orbifold structure"
-  (let* ((quotient-space (quotient base-space group-action))
+  (let* ((quotient-space (orbit-space base-space group-action))
          (marked-points (map (lambda (x) (compute-multiplicity x)) singularities))
          (structure-sheaves 
           (map (lambda (tau) 
@@ -230,7 +230,7 @@
 (define (compute-generator-matrix tau n k) (list tau n k))
 (define (cartesian-product . lists) (apply append lists))
 (define (make-block-code n k d config) (list n k d config))
-(define (quotient space action) space)
+(define (orbit-space space action) space)
 (define (compute-multiplicity x) 1)
 (define (compute-structure-sheaf tau points) (list tau points))
 (define (make-orbifold space points sheaves) (list space points sheaves))
@@ -312,6 +312,6 @@
   
   (format #t "Advanced structures demonstration complete.~%"))
 
-;; Run demo if called directly
-(when (and (defined? 'command-line) (not (null? (command-line))))
+;; Entry point: guile -e main -s advanced-structures.scm
+(define (main . args)
   (demo-advanced-structures))

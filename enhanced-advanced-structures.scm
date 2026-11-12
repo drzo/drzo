@@ -1,4 +1,4 @@
-#!/usr/bin/env guile
+#!/usr/bin/env -S guile -e main -s
 !#
 
 ;;; Enhanced Advanced Mathematical Structures for A000081
@@ -590,6 +590,6 @@
   
   (format #t "~%Enhanced structures demonstration complete.~%"))
 
-;; Run demo if called directly
-(when (and (defined? 'command-line) (not (null? (command-line))))
+;; Entry point: guile -e main -s enhanced-advanced-structures.scm
+(define (main . args)
   (demo-enhanced-structures))
