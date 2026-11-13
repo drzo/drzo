@@ -126,8 +126,41 @@
     (every (lambda (t)
              (let ((f (tree->parent-map t)))
                (and (= 0 (vector-ref f 0))
+                    (increasing-parent-map? f)
                     (equal? t (parent-map->tree f)))))
            (trees-of-size n))))
+
+;;; Increasing parent maps: (n-1)! of them, alpha(t) with each shape t.
+;;; This counts monotone labellings directly, without sigma or gamma.
+
+(test-assert "increasing: chain" (increasing-parent-map? #(0 0 1 2)))
+(test-assert "increasing: star" (increasing-parent-map? #(0 0 0 0)))
+(test-assert "not increasing: parent after child"
+  (not (increasing-parent-map? #(0 2 0))))
+(test-assert "not increasing: root is not node 0"
+  (not (increasing-parent-map? #(1 1))))
+(test-assert "not increasing: empty" (not (increasing-parent-map? #())))
+(test-equal "alpha of the chain" 1 (tree-monotone-labellings (chain-tree 6)))
+(test-equal "alpha of the star" 1 (tree-monotone-labellings (star-tree 6)))
+(test-equal "alpha of [[.],.]" 3 (tree-monotone-labellings '((()) ())))
+(test-error "no increasing maps on 0 points" #t (increasing-parent-maps 0))
+
+(do ((n 1 (+ n 1))) ((> n 8))
+  (let ((maps (increasing-parent-maps n))
+        (counts (make-hash-table)))
+    (for-each (lambda (f)
+                (let ((t (parent-map->tree f)))
+                  (hash-set! counts t (+ 1 (hash-ref counts t 0)))))
+              maps)
+    (test-equal (format #f "n = ~a: (n-1)! increasing parent maps" n)
+      (factorial (- n 1))
+      (length maps))
+    (test-assert (format #f "n = ~a: every increasing map is a rooted parent map" n)
+      (every rooted-parent-map? maps))
+    (test-assert (format #f "n = ~a: alpha(t) increasing maps have shape t" n)
+      (every (lambda (t)
+               (= (hash-ref counts t 0) (tree-monotone-labellings t)))
+             (trees-of-size n)))))
 
 ;;; Partitions: a surjection onto the partitions of n-1, not a bijection.
 

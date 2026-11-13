@@ -1,5 +1,5 @@
 GUILE ?= guile
-TESTS = series a000081 tree matula butcher legacy
+TESTS = series a000081 tree matula butcher psystem legacy
 
 .PHONY: check demo clean
 
