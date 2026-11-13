@@ -17,6 +17,7 @@
             tree-canonical?
             tree-symmetry
             tree-density
+            tree-monotone-labellings
             tree->string
             trees-of-size
             chain-tree
@@ -25,6 +26,8 @@
             parent-map->tree
             tree->parent-map
             rooted-parent-maps
+            increasing-parent-map?
+            increasing-parent-maps
             tree->partition
             partition-fibres
             partition-fibre-size))
@@ -103,6 +106,13 @@ the distinct root subtrees c with multiplicity m of m! * sigma(c)^m."
   (fold (lambda (child acc) (* acc (tree-density child)))
         (tree-size t)
         t))
+
+(define (tree-monotone-labellings t)
+  "alpha(t) = |t|! / (sigma(t) gamma(t)): the number of ways to label the
+nodes of T with 1..|t| so that labels increase away from the root, counted
+up to the symmetries of T."
+  (/ (factorial (tree-size t))
+     (* (tree-symmetry t) (tree-density t))))
 
 (define (tree->string t)
   "Balanced-parenthesis form, e.g. \"(()(()))\"."
@@ -234,6 +244,37 @@ in increasing `tree-compare' order.  There are (a000081 N) of them."
               (vector-set! f i v)
               (fill (+ i 1))
               (loop (+ v 1))))))
+    (reverse acc)))
+
+;;; A parent map is increasing when node 0 is the root and every other node
+;;; has a smaller-numbered parent.  Such a map is always a rooted parent
+;;; map, and `tree->parent-map' produces one.  There are (n-1)! of them on n
+;;; points, and alpha(t) of them have the shape t.
+
+(define (increasing-parent-map? f)
+  (and (vector? f)
+       (> (vector-length f) 0)
+       (eqv? 0 (vector-ref f 0))
+       (let loop ((i 1))
+         (or (= i (vector-length f))
+             (let ((p (vector-ref f i)))
+               (and (integer? p) (exact? p) (<= 0 p) (< p i)
+                    (loop (+ i 1))))))))
+
+(define (increasing-parent-maps n)
+  "All increasing parent maps on N >= 1 points."
+  (unless (and (integer? n) (exact? n) (>= n 1))
+    (error "increasing-parent-maps: size must be a positive exact integer:" n))
+  (let ((f (make-vector n 0))
+        (acc '()))
+    (let fill ((i 1))
+      (if (= i n)
+          (set! acc (cons (vector-copy f) acc))
+          (let loop ((p 0))
+            (when (< p i)
+              (vector-set! f i p)
+              (fill (+ i 1))
+              (loop (+ p 1))))))
     (reverse acc)))
 
 ;;; Trees and partitions.

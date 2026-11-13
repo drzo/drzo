@@ -18,6 +18,7 @@
     ("kutta3" . ,kutta3-tableau)
     ("rk4" . ,rk4-tableau)
     ("three-eighths" . ,three-eighths-tableau)
+    ("dormand-prince" . ,dormand-prince-tableau)
     ("implicit-midpoint" . ,implicit-midpoint-tableau)))
 
 (define (usage port)
